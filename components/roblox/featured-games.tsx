@@ -1,8 +1,21 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { getFeaturedPages } from '@/lib/data/public';
 import { FEATURED_GAMES, type StaticGame } from '@/lib/data/featured-games';
 import { formatNumber } from '@/lib/utils';
 import type { RobloxPage } from '@/lib/types';
+
+const PLACEHOLDER_IMG = '/images/game-placeholder.svg';
+
+// Detect placeholder/fake CDN URLs used in the static fallback list
+function isValidIconUrl(url: string | null): url is string {
+  if (!url) return false;
+  // Fake hex patterns used in featured-games.ts static data
+  if (/1234567890abcdef|abcdef1234567890|fedcba0987654321|0987654321fedcba|aabbccdd11223344|11223344aabbccdd/.test(url)) {
+    return false;
+  }
+  return true;
+}
 
 // Normalise DB rows and static entries into a single shape for the grid
 type GameEntry = {
@@ -88,23 +101,25 @@ export async function FeaturedGames() {
               className="block"
             >
               <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
-                {game.icon_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                {isValidIconUrl(game.icon_url) ? (
+                  <Image
                     src={game.icon_url}
                     alt={`Roblox codes for ${game.name}`}
                     title={`${game.name} — ${formatNumber(game.active_players)} active players`}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    loading="lazy"
-                    width={300}
-                    height={300}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    unoptimized
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <span className="text-4xl font-black text-slate-300">
-                      {game.name.charAt(0)}
-                    </span>
-                  </div>
+                  <Image
+                    src={PLACEHOLDER_IMG}
+                    alt={`${game.name} game icon`}
+                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    unoptimized
+                  />
                 )}
 
                 {game.trend_spike_label ? (
