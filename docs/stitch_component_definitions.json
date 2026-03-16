@@ -1,0 +1,130 @@
+[
+  {
+    "name": "Header",
+    "purpose": "Global top navigation",
+    "props": [
+      "userState"
+    ],
+    "slots": [
+      "logo",
+      "navLinks",
+      "authAction"
+    ],
+    "states": [
+      "guest",
+      "authenticated"
+    ],
+    "analytics": [
+      "page_view"
+    ]
+  },
+  {
+    "name": "Hero",
+    "purpose": "Landing conversion block",
+    "props": [],
+    "slots": [
+      "eyebrow",
+      "headline",
+      "body",
+      "primaryCta",
+      "secondaryCta",
+      "searchForm"
+    ],
+    "states": [
+      "default"
+    ],
+    "analytics": [
+      "search_submitted",
+      "pricing_viewed"
+    ]
+  },
+  {
+    "name": "GameCard",
+    "purpose": "Directory result tile",
+    "props": [
+      "id",
+      "slug",
+      "name",
+      "activePlayers",
+      "iconUrl",
+      "summary",
+      "genre"
+    ],
+    "slots": [
+      "image",
+      "title",
+      "badges",
+      "summary",
+      "link"
+    ],
+    "states": [
+      "default",
+      "noImage",
+      "summaryPending"
+    ],
+    "analytics": [
+      "page_view"
+    ]
+  },
+  {
+    "name": "UsefulAnswerArticle",
+    "purpose": "SEO detail renderer",
+    "props": [
+      "page"
+    ],
+    "slots": [
+      "hero",
+      "takeaways",
+      "guide",
+      "faq"
+    ],
+    "states": [
+      "full",
+      "summaryOnly",
+      "faqOnly"
+    ],
+    "analytics": [
+      "page_view",
+      "game_saved"
+    ]
+  },
+  {
+    "name": "PricingTable",
+    "purpose": "Plan comparison and checkout trigger",
+    "props": [],
+    "slots": [
+      "freePlan",
+      "proPlan"
+    ],
+    "states": [
+      "default"
+    ],
+    "analytics": [
+      "pricing_viewed",
+      "checkout_started"
+    ]
+  },
+  {
+    "name": "DashboardSavedList",
+    "purpose": "Authenticated saved game list",
+    "props": [
+      "items",
+      "planState"
+    ],
+    "slots": [
+      "header",
+      "list",
+      "emptyState",
+      "upsell"
+    ],
+    "states": [
+      "pro",
+      "freeUpsell",
+      "empty"
+    ],
+    "analytics": [
+      "page_view",
+      "game_saved"
+    ]
+  }
+]

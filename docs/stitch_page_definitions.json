@@ -1,0 +1,94 @@
+[
+  {
+    "route": "/",
+    "name": "LandingPage",
+    "purpose": "Acquire and route users to game pages",
+    "sections": [
+      "Header",
+      "Hero",
+      "FeaturedGames",
+      "ValueProps",
+      "Footer"
+    ],
+    "data": [
+      "featuredGames"
+    ],
+    "seo": {
+      "index": true,
+      "canonical": "/"
+    }
+  },
+  {
+    "route": "/games",
+    "name": "GamesDirectoryPage",
+    "purpose": "Search and browse published game guides",
+    "sections": [
+      "Header",
+      "DirectoryHeader",
+      "SearchForm",
+      "GameGrid",
+      "Footer"
+    ],
+    "data": [
+      "publishedGames"
+    ],
+    "seo": {
+      "index": true,
+      "canonical": "/games"
+    }
+  },
+  {
+    "route": "/games/[slug]",
+    "name": "GameDetailPage",
+    "purpose": "Render useful answer content and save CTA",
+    "sections": [
+      "Header",
+      "UsefulAnswerArticle",
+      "SaveGameForm",
+      "PaywallCta",
+      "Footer"
+    ],
+    "data": [
+      "gameBySlug"
+    ],
+    "seo": {
+      "index": true,
+      "canonicalTemplate": "/games/{slug}"
+    }
+  },
+  {
+    "route": "/pricing",
+    "name": "PricingPage",
+    "purpose": "Convert frequent users to paid plan",
+    "sections": [
+      "Header",
+      "PricingIntro",
+      "PricingTable",
+      "Footer"
+    ],
+    "data": [],
+    "seo": {
+      "index": true,
+      "canonical": "/pricing"
+    }
+  },
+  {
+    "route": "/dashboard",
+    "name": "DashboardPage",
+    "purpose": "Retain logged-in paid users",
+    "sections": [
+      "Header",
+      "DashboardHeader",
+      "SavedGameList",
+      "Footer"
+    ],
+    "data": [
+      "currentUser",
+      "subscription",
+      "savedGames"
+    ],
+    "seo": {
+      "index": false
+    }
+  }
+]

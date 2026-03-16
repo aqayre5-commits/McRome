@@ -1,0 +1,49 @@
+import { z } from 'zod';
+
+const serverSchema = z.object({
+  NEXT_PUBLIC_SITE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  GEMINI_API_KEY: z.string().min(1).optional(),
+  GOOGLE_SERVICE_ACCOUNT_JSON: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_PRO_YEARLY: z.string().optional(),
+  STRIPE_PRICE_PRO_MONTHLY_TIER1: z.string().optional(),
+  STRIPE_PRICE_PRO_YEARLY_TIER1: z.string().optional(),
+  STRIPE_PRICE_PRO_MONTHLY_TIER2: z.string().optional(),
+  STRIPE_PRICE_PRO_YEARLY_TIER2: z.string().optional(),
+  CRON_SECRET: z.string().min(1).optional(),
+  GA_MEASUREMENT_ID: z.string().optional(),
+  NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: z.string().optional(),
+  SITEMAP_INDEX_LIMIT: z.coerce.number().int().positive().default(100),
+  REGIONAL_TIER1_COUNTRIES: z.string().default('US,CA,GB,AU,NZ,DE,FR,NL,SE,NO,DK,CH,IE,SG,JP'),
+  CPA_BETA_SIGNUP_URL_TIER1: z.string().url().optional(),
+  CPA_BETA_SIGNUP_URL_TIER2: z.string().url().optional()
+});
+
+export const env = serverSchema.parse({
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  GOOGLE_SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_PRO_MONTHLY: process.env.STRIPE_PRICE_PRO_MONTHLY,
+  STRIPE_PRICE_PRO_YEARLY: process.env.STRIPE_PRICE_PRO_YEARLY,
+  STRIPE_PRICE_PRO_MONTHLY_TIER1: process.env.STRIPE_PRICE_PRO_MONTHLY_TIER1,
+  STRIPE_PRICE_PRO_YEARLY_TIER1: process.env.STRIPE_PRICE_PRO_YEARLY_TIER1,
+  STRIPE_PRICE_PRO_MONTHLY_TIER2: process.env.STRIPE_PRICE_PRO_MONTHLY_TIER2,
+  STRIPE_PRICE_PRO_YEARLY_TIER2: process.env.STRIPE_PRICE_PRO_YEARLY_TIER2,
+  CRON_SECRET: process.env.CRON_SECRET,
+  GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID,
+  NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID,
+  SITEMAP_INDEX_LIMIT: process.env.SITEMAP_INDEX_LIMIT,
+  REGIONAL_TIER1_COUNTRIES: process.env.REGIONAL_TIER1_COUNTRIES,
+  CPA_BETA_SIGNUP_URL_TIER1: process.env.CPA_BETA_SIGNUP_URL_TIER1,
+  CPA_BETA_SIGNUP_URL_TIER2: process.env.CPA_BETA_SIGNUP_URL_TIER2
+});
