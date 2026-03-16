@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Script from 'next/script';
 import { GoogleTagManager } from '@next/third-parties/google';
+import { Analytics } from '@vercel/analytics/react';
 import { Header } from '@/components/site/header';
 import { Footer } from '@/components/site/footer';
 import { buildDefaultMetadata } from '@/lib/seo';
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Header />
         <main>{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
