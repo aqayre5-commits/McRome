@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "latest",
+    "@next/third-parties": "^16.1.6",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "clsx": "latest",

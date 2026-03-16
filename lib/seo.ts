@@ -26,6 +26,9 @@ export function buildDefaultMetadata(): Metadata {
       title: 'McRome',
       description: 'Fast answers, useful Roblox game guides, FAQs, utility tools, and premium saved game features.',
       images: [absoluteUrl('/og-default.svg')]
+    },
+    other: {
+      'google-adsense-account': `ca-${process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? ''}`,
     }
   };
 }

@@ -104,6 +104,33 @@ export default async function GameDetailPage({
   ];
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+
+  const seoDescription =
+    page.answer_block?.slice(0, 155) ??
+    page.useful_summary?.slice(0, 155) ??
+    `Roblox codes, tips, and player data for ${page.name}.`;
+
+  const softwareAppJsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: page.name,
+    operatingSystem: 'Windows, macOS, Android, iOS, Xbox',
+    applicationCategory: 'GameApplication',
+    description: seoDescription,
+    softwareVersion: '2026 Update',
+    url: `${siteUrl}/games/${page.slug}`,
+    image: page.icon_url ?? undefined,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+    },
+  })
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
   const breadcrumbJsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -120,6 +147,7 @@ export default async function GameDetailPage({
   return (
     <div className="py-8 md:py-10">
       <Container>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: softwareAppJsonLd }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }} />
 
         {/* Visual breadcrumb trail — mirrors the JSON-LD for a perfect HCU signal */}

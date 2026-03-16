@@ -1,14 +1,11 @@
 import { headers } from 'next/headers';
 import { Container } from '@/components/ui/container';
 import { Hero } from '@/components/site/hero';
-import { GameGrid } from '@/components/roblox/game-grid';
-import { ButtonLink } from '@/components/ui/button-link';
+import { FeaturedGames } from '@/components/roblox/featured-games';
 import { RobuxConverter } from '@/components/roblox/robux-converter';
-import { getFeaturedPages } from '@/lib/data/public';
 import { getRequestCountry } from '@/lib/geo';
 
 export default async function HomePage() {
-  const featuredPages = await getFeaturedPages(6);
   const headerList = await headers();
   const countryCode = getRequestCountry(headerList);
   const acceptLanguage = headerList.get('accept-language') ?? '';
@@ -20,19 +17,7 @@ export default async function HomePage() {
         <div className="space-y-10">
           <Hero />
 
-          <section className="space-y-4">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-600">Featured pages</p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-                  Published Roblox useful answers
-                </h2>
-              </div>
-              <ButtonLink href="/games" variant="secondary">View all games</ButtonLink>
-            </div>
-
-            <GameGrid pages={featuredPages} />
-          </section>
+          <FeaturedGames />
 
           <section className="grid gap-5 md:grid-cols-3">
             {[
