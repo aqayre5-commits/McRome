@@ -39,7 +39,7 @@ function fromStatic(s: StaticGame): GameEntry {
     id: s.id,
     name: s.name,
     slug: s.slug,
-    icon_url: s.icon_url,
+    icon_url: s.icon_url || null,  // treat empty string as null → shows placeholder immediately
     active_players: s.active_players,
     active_players_change_24h: 0,
     genre: s.genre,
