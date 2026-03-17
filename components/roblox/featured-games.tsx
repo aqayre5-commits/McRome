@@ -1,21 +1,11 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { getFeaturedPages } from '@/lib/data/public';
 import { FEATURED_GAMES, type StaticGame } from '@/lib/data/featured-games';
 import { formatNumber } from '@/lib/utils';
+import { GameIconImage } from '@/components/roblox/game-icon-image';
 import type { RobloxPage } from '@/lib/types';
 
 const PLACEHOLDER_IMG = '/images/game-placeholder.svg';
-
-// Detect placeholder/fake CDN URLs used in the static fallback list
-function isValidIconUrl(url: string | null): url is string {
-  if (!url) return false;
-  // Fake hex patterns used in featured-games.ts static data
-  if (/1234567890abcdef|abcdef1234567890|fedcba0987654321|0987654321fedcba|aabbccdd11223344|11223344aabbccdd/.test(url)) {
-    return false;
-  }
-  return true;
-}
 
 // Normalise DB rows and static entries into a single shape for the grid
 type GameEntry = {
@@ -61,7 +51,8 @@ function fromStatic(s: StaticGame): GameEntry {
 export async function FeaturedGames() {
   const dbGames = await getFeaturedPages(12);
   // Use DB data when available; fall back to static list on a fresh deploy
-  const games: GameEntry[] = dbGames.length
+  const hasDbData = dbGames.length > 0;
+  const games: GameEntry[] = hasDbData
     ? dbGames.map(fromPage)
     : FEATURED_GAMES.map(fromStatic);
 
@@ -101,26 +92,12 @@ export async function FeaturedGames() {
               className="block"
             >
               <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
-                {isValidIconUrl(game.icon_url) ? (
-                  <Image
-                    src={game.icon_url}
-                    alt={`Roblox codes for ${game.name}`}
-                    title={`${game.name} — ${formatNumber(game.active_players)} active players`}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    unoptimized
-                  />
-                ) : (
-                  <Image
-                    src={PLACEHOLDER_IMG}
-                    alt={`${game.name} game icon`}
-                    className="h-full w-full object-cover"
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    unoptimized
-                  />
-                )}
+                <GameIconImage
+                  src={game.icon_url ?? PLACEHOLDER_IMG}
+                  alt={`Roblox codes for ${game.name}`}
+                  title={`${game.name} — ${formatNumber(game.active_players)} active players`}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
 
                 {game.trend_spike_label ? (
                   <span className="absolute left-2 top-2 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
@@ -162,13 +139,19 @@ export async function FeaturedGames() {
                 </p>
               </div>
 
-              <Link
-                href={`/games/${game.slug}`}
-                title={`View working codes for ${game.name}`}
-                className="mt-auto inline-flex items-center justify-center rounded-xl bg-brand-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-brand-700"
-              >
-                View Codes →
-              </Link>
+              {hasDbData ? (
+                <Link
+                  href={`/games/${game.slug}`}
+                  title={`View working codes for ${game.name}`}
+                  className="mt-auto inline-flex items-center justify-center rounded-xl bg-brand-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-brand-700"
+                >
+                  View Codes →
+                </Link>
+              ) : (
+                <span className="mt-auto inline-flex items-center justify-center rounded-xl bg-slate-200 px-3 py-2 text-xs font-bold text-slate-400 cursor-default">
+                  Coming soon
+                </span>
+              )}
             </div>
           </article>
         ))}
