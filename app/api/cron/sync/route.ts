@@ -60,7 +60,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Sync Error:', error);
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    // This fix ensures we see the ACTUAL error message, not "[object Object]"
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : JSON.stringify(error) 
+    }, { status: 500 });
   }
 }
