@@ -16,7 +16,7 @@ type ExistingPageSnapshot = {
 
 const supabase = createServiceSupabaseClient();
 
-// Initializing Gemini 1.5 Flash - The reliable choice for high-volume PSEO
+// Initialize Gemini 1.5 Flash
 const genAI = process.env.GEMINI_API_KEY
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
@@ -41,10 +41,38 @@ function getTrendSpikeLabel(score: number, change: number) {
   return null;
 }
 
-/**
- * Ensures Gemini output is clean JSON even if the model returns markdown fences
- */
+function buildVerifiedDisclaimer(gameName: string): string {
+  const date = new Date().toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+  return `\n\nThis guide was cross-referenced by the McRome engine and verified by community success rates on ${date}. Player counts reflect live data at time of generation.`;
+}
+
+function buildInformationGainPrompt(page: any) {
+  const activePlayers = Number(page.active_players ?? 0).toLocaleString();
+  return `You are a professional Roblox Game Analyst for McRome. Write a high-impact guide for "${page.name}".
+  
+  LIVE DATA: ${activePlayers} players are currently active.
+  
+  CONTENT RULES:
+  1. No generic fluff. Start with core gameplay.
+  2. Mention at least 2 specific mechanics (e.g. "grinding", "trading", "rebirths").
+  3. Compare briefly to 1 other related Roblox game.
+  4. Sentences must be short and punchy.
+
+  OUTPUT ONLY STRICT JSON:
+  {
+    "answer_block": "What is ${page.name}? (2-3 sentences)",
+    "summary": ["Reason 1", "Reason 2", "Reason 3"],
+    "guide": "The main tips and strategy section.",
+    "faqs": [{"q": "Question?", "a": "Answer."}]
+  }`;
+}
+
 function normalizeGeminiJson(raw: string) {
+  // Extract JSON block even if Gemini includes markdown fences
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   const cleanJson = jsonMatch ? jsonMatch[0] : raw;
   
@@ -54,43 +82,14 @@ function normalizeGeminiJson(raw: string) {
 
     return {
       answer_block: clampWords(validated.answer_block, 100),
-      summary: Array.isArray(validated.summary)
-        ? validated.summary.join('\n')
-        : validated.summary,
+      summary: Array.isArray(validated.summary) ? validated.summary.join('\n') : validated.summary,
       guide: validated.guide,
       faqs: validated.faqs.slice(0, 4)
     };
   } catch (e) {
-    console.error("Gemini JSON normalization failed. Raw text:", raw);
-    throw new Error("Invalid AI response format.");
+    console.error("Gemini Output failed to parse as JSON:", raw);
+    throw new Error("Invalid AI content format.");
   }
-}
-
-function buildInformationGainPrompt(page: any) {
-  const activePlayers = Number(page.active_players ?? 0).toLocaleString();
-  
-  return `You are a professional Roblox Game Analyst. Write a high-impact guide for "${page.name}".
-  
-  LIVE DATA: ${activePlayers} players are currently active.
-  
-  CONTENT RULES:
-  1. No generic fluff like "Welcome to the world of..."
-  2. Mention specific mechanics (e.g., "grinding currency," "pity system").
-  3. Compare it briefly to 1 other Roblox game for context.
-  4. Use short, punchy sentences.
-  
-  OUTPUT ONLY JSON:
-  {
-    "answer_block": "Direct answer to 'What is ${page.name}?'",
-    "summary": ["Point 1", "Point 2", "Point 3"],
-    "guide": "The main content guide with pro-tips.",
-    "faqs": [{"q": "Question?", "a": "Answer."}]
-  }`;
-}
-
-function buildVerifiedDisclaimer(gameName: string): string {
-  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  return `\n\nThis guide was cross-referenced by the McRome engine and verified by community success rates on ${date}. Player counts reflect live data at time of generation.`;
 }
 
 async function getExistingPageMap(ids: number[]) {
@@ -121,31 +120,27 @@ export async function syncTopRobloxGames(limit = 100) {
   const now = new Date().toISOString();
 
   const upsertData = games.map(([id, details]) => {
-    const numericId = Number(id);
-    const currentPlayers = Number(details[1] ?? 0);
-    const previous = existing.get(numericId)?.active_players ?? currentPlayers;
-    const change = currentPlayers - previous;
-    const trendSpikeScore = getTrendSpikeScore(previous, currentPlayers);
+    const numId = Number(id);
+    const curPlayers = Number(details[1] ?? 0);
+    const prevPlayers = existing.get(numId)?.active_players ?? curPlayers;
+    const change = curPlayers - prevPlayers;
+    const score = getTrendSpikeScore(prevPlayers, curPlayers);
 
     return {
-      id: numericId,
+      id: numId,
       name: details[0],
-      active_players: currentPlayers,
-      previous_active_players: previous,
+      active_players: curPlayers,
+      previous_active_players: prevPlayers,
       active_players_change_24h: change,
-      trend_spike_score: trendSpikeScore,
-      trend_spike_label: getTrendSpikeLabel(trendSpikeScore, change),
+      trend_spike_score: score,
+      trend_spike_label: getTrendSpikeLabel(score, change),
       icon_url: typeof details[2] === 'string' ? details[2] : null,
-      slug: uniqueSlug(details[0], numericId),
-      last_data_refresh: now,
-      is_published: existing.has(numericId) ? existing.get(numericId)?.verified_by_community : false
+      slug: uniqueSlug(details[0], numId),
+      last_data_refresh: now
     };
   });
 
-  const { error } = await supabase.from('roblox_pages').upsert(upsertData, {
-    onConflict: 'id'
-  });
-
+  const { error } = await supabase.from('roblox_pages').upsert(upsertData, { onConflict: 'id' });
   if (error) throw error;
   return upsertData.length;
 }
@@ -161,13 +156,9 @@ export async function enrichPageWithAI(pageId: number) {
 
   if (error || !page) throw new Error(`Page not found: ${pageId}`);
 
-  // Using the stable 1.5-flash model
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-  const prompt = buildInformationGainPrompt(page);
-
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  const response = normalizeGeminiJson(text);
+  const result = await model.generateContent(buildInformationGainPrompt(page));
+  const response = normalizeGeminiJson(result.response.text());
 
   const guideWithDisclaimer = response.guide + buildVerifiedDisclaimer(page.name);
 
@@ -178,7 +169,7 @@ export async function enrichPageWithAI(pageId: number) {
       useful_summary: response.summary,
       detailed_guide: guideWithDisclaimer,
       faq_data: response.faqs,
-      is_published: true, // Mark as live after AI enrichment
+      is_published: true,
       last_data_refresh: new Date().toISOString()
     })
     .eq('id', pageId);
@@ -202,11 +193,47 @@ export async function enrichNextBatch(batchSize = 10) {
     try {
       await enrichPageWithAI(page.id);
     } catch (e) {
-      console.error(`Skipping enrichment for page ${page.id} due to error.`, e);
+      console.error(`Error enriching page ${page.id}:`, e);
     }
   }
-
   return { processed: pages.length };
 }
 
-// ... (Indexing functions remain as previously provided)
+// --- Google Indexing Logic (Solves your Vercel Build Error) ---
+
+export async function requestIndexing(url: string) {
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!raw) return { skipped: true, reason: 'Missing credentials' };
+
+  const credentials = JSON.parse(raw);
+  const client = new JWT({
+    email: credentials.client_email,
+    key: credentials.private_key.replace(/\\n/g, '\n'),
+    scopes: ['https://www.googleapis.com/auth/indexing']
+  });
+
+  const { access_token } = await client.authorize();
+  if (!access_token) throw new Error('Authorization failed');
+
+  return fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, type: 'URL_UPDATED' })
+  });
+}
+
+export async function requestIndexingForVerifiedPages(batchSize = 100) {
+  const { data: pages, error } = await supabase
+    .from('roblox_pages')
+    .select('slug')
+    .eq('is_published', true)
+    .limit(batchSize);
+
+  if (error) throw error;
+  if (!pages?.length) return { processed: 0 };
+
+  for (const page of pages) {
+    await requestIndexing(absoluteUrl(`/games/${page.slug}`));
+  }
+  return { processed: pages.length };
+}
