@@ -1,10 +1,14 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServiceSupabaseClient } from '@/lib/supabase/service';
 import { env } from '@/lib/env';
 import type { RobloxPage, SavedGame, Subscription } from '@/lib/types';
 
+// Public game reads use the service role client to bypass RLS.
+// The service key never leaves the server.
+const db = createServiceSupabaseClient();
+
 export async function getFeaturedPages(limit = 12): Promise<RobloxPage[]> {
-  const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('roblox_pages')
     .select('*')
     .eq('is_published', true)
@@ -12,25 +16,27 @@ export async function getFeaturedPages(limit = 12): Promise<RobloxPage[]> {
     .order('active_players', { ascending: false })
     .limit(limit);
 
-  if (error || !data) return [];
-  return data as RobloxPage[];
+  if (error) {
+    console.error('[getFeaturedPages] Supabase error:', error.message);
+    return [];
+  }
+  return (data as RobloxPage[]) ?? [];
 }
 
 export async function getGameBySlug(slug: string): Promise<RobloxPage | null> {
-  const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+  const { data, error } = await db
     .from('roblox_pages')
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
     .single();
 
+  if (error) console.error('[getGameBySlug] Supabase error:', error.message);
   return (data as RobloxPage | null) ?? null;
 }
 
 export async function getGames(search?: string, limit = 48): Promise<RobloxPage[]> {
-  const supabase = await createServerSupabaseClient();
-  let query = supabase
+  let query = db
     .from('roblox_pages')
     .select('*')
     .eq('is_published', true)
@@ -43,13 +49,12 @@ export async function getGames(search?: string, limit = 48): Promise<RobloxPage[
   }
 
   const { data, error } = await query;
-  if (error || !data) return [];
-  return data as RobloxPage[];
+  if (error) console.error('[getGames] Supabase error:', error.message);
+  return (data as RobloxPage[]) ?? [];
 }
 
 export async function getAllPublishedSlugs(limit = 10000): Promise<Array<{ slug: string; last_indexed_at: string | null }>> {
-  const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+  const { data } = await db
     .from('roblox_pages')
     .select('slug,last_indexed_at')
     .eq('is_published', true)
@@ -60,12 +65,10 @@ export async function getAllPublishedSlugs(limit = 10000): Promise<Array<{ slug:
 }
 
 export async function getSitemapEligiblePages(): Promise<Array<{ slug: string; last_indexed_at: string | null }>> {
-  const supabase = await createServerSupabaseClient();
-  const { data } = await supabase
+  const { data } = await db
     .from('roblox_pages')
     .select('slug,last_indexed_at')
     .eq('is_published', true)
-    .eq('verified_by_community', true)
     .order('trend_spike_score', { ascending: false })
     .order('active_players', { ascending: false })
     .limit(env.SITEMAP_INDEX_LIMIT);
