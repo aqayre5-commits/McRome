@@ -53,29 +53,52 @@ function buildVerifiedDisclaimer(): string {
 function buildInformationGainPrompt(page: any) {
   const activePlayers = Number(page.active_players ?? 0).toLocaleString();
   return `You are a professional Roblox Game Analyst for McRome. Write a high-impact guide for "${page.name}".
-  
-  LIVE DATA: ${activePlayers} players are currently active.
-  
-  CONTENT RULES:
-  1. No generic fluff. Start with core gameplay.
-  2. Mention at least 2 specific mechanics (e.g. "grinding", "trading", "rebirths").
-  3. Compare briefly to 1 other related Roblox game.
-  4. Sentences must be short and punchy.
 
-  OUTPUT ONLY STRICT JSON:
-  {
-    "answer_block": "What is ${page.name}? (2-3 sentences)",
-    "summary": ["Reason 1", "Reason 2", "Reason 3"],
-    "guide": "The main tips and strategy section.",
-    "faqs": [{"q": "Question?", "a": "Answer."}]
-  }`;
+LIVE DATA: ${activePlayers} players are currently active.
+
+CONTENT RULES:
+1. No generic fluff. Start with core gameplay.
+2. Mention at least 2 specific mechanics (e.g. "grinding", "trading", "rebirths").
+3. Compare briefly to 1 other related Roblox game.
+4. Sentences must be short and punchy.
+
+OUTPUT RULES (CRITICAL — failure to follow will cause a parse error):
+- Return ONLY a single valid JSON object. No markdown, no code fences, no extra text.
+- Every string value must be on a single line. Do NOT use literal newlines inside string values.
+- Use \\n (the two characters backslash-n) if you need a line break inside a string.
+- Do NOT include tab characters or any other control characters inside strings.
+- Escape all double-quotes inside string values with a backslash.
+
+JSON SCHEMA:
+{
+  "answer_block": "Single-line string: What is ${page.name}? (2-3 sentences)",
+  "summary": ["Single-line reason 1", "Single-line reason 2", "Single-line reason 3"],
+  "guide": "Single-line string with \\\\n for paragraph breaks.",
+  "faqs": [{"q": "Question?", "a": "Single-line answer."}]
+}`;
+}
+
+/** Strip bare control characters that make JSON.parse throw "Bad control character" */
+function sanitizeForJson(s: string): string {
+  return s
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '') // non-printable controls
+    .replace(/\r\n/g, '\\n')   // CRLF → escaped newline
+    .replace(/\r/g, '\\n')     // CR   → escaped newline
+    .replace(/\n/g, '\\n')     // LF   → escaped newline (inside JSON strings only safe when escaped)
+    .replace(/\t/g, '\\t');    // TAB  → escaped tab
 }
 
 function normalizeGeminiJson(raw: string) {
   // Extract JSON block even if Gemini includes markdown fences
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  const cleanJson = jsonMatch ? jsonMatch[0] : raw;
-  
+  const extracted = jsonMatch ? jsonMatch[0] : raw;
+
+  // Sanitize control characters inside string values before parsing
+  // We only sanitize content inside JSON string values, not the structural characters
+  const cleanJson = extracted.replace(/"((?:[^"\\]|\\.)*)"/g, (_, inner) => {
+    return `"${sanitizeForJson(inner)}"`;
+  });
+
   try {
     const parsed = JSON.parse(cleanJson);
     const validated = geminiResponseSchema.parse(parsed);
@@ -163,7 +186,7 @@ export async function enrichPageWithAI(pageId: number) {
 
   if (error || !page) throw new Error(`Page not found: ${pageId}`);
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
   const result = await model.generateContent(buildInformationGainPrompt(page));
   const response = normalizeGeminiJson(result.response.text());
 
