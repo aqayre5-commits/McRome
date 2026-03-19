@@ -88,6 +88,23 @@ function sanitizeForJson(s: string): string {
     .replace(/\t/g, '\\t');    // TAB  → escaped tab
 }
 
+/**
+ * JSON.parse that tolerates bare control characters inside string values.
+ * Useful for env vars like GOOGLE_SERVICE_ACCOUNT_JSON whose private_key
+ * may contain literal newlines when pasted into Vercel/CI dashboards.
+ */
+function safeJsonParse<T = unknown>(raw: string): T {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    // Second attempt: sanitize control chars inside string values then re-parse
+    const cleaned = raw.replace(/"((?:[^"\\]|\\.)*)"/gs, (_, inner) => {
+      return `"${sanitizeForJson(inner)}"`;
+    });
+    return JSON.parse(cleaned) as T;
+  }
+}
+
 function normalizeGeminiJson(raw: string) {
   // Extract JSON block even if Gemini includes markdown fences
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
@@ -246,7 +263,7 @@ export async function requestIndexing(url: string) {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (!raw) return { skipped: true, reason: 'Missing credentials' };
 
-  const credentials = JSON.parse(raw);
+  const credentials = safeJsonParse<{ client_email: string; private_key: string }>(raw);
   const client = new JWT({
     email: credentials.client_email,
     key: credentials.private_key.replace(/\\n/g, '\n'),
