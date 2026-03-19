@@ -41,11 +41,11 @@ function getTrendSpikeLabel(score: number, change: number) {
   return null;
 }
 
-function buildVerifiedDisclaimer(gameName: string): string {
-  const date = new Date().toLocaleDateString('en-US', { 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric' 
+function buildVerifiedDisclaimer(): string {
+  const date = new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
   });
   return `\n\nThis guide was cross-referenced by the McRome engine and verified by community success rates on ${date}. Player counts reflect live data at time of generation.`;
 }
@@ -126,7 +126,7 @@ export async function syncTopRobloxGames(limit = 100) {
     const change = curPlayers - prevPlayers;
     const score = getTrendSpikeScore(prevPlayers, curPlayers);
 
-    return {
+    const row: Record<string, unknown> = {
       id: numId,
       name: details[0],
       active_players: curPlayers,
@@ -138,6 +138,13 @@ export async function syncTopRobloxGames(limit = 100) {
       slug: uniqueSlug(details[0], numId),
       last_data_refresh: now
     };
+
+    // Only mark new rows as unpublished — don't reset already-published pages
+    if (!existing.has(numId)) {
+      row.is_published = false;
+    }
+
+    return row;
   });
 
   const { error } = await supabase.from('roblox_pages').upsert(upsertData, { onConflict: 'id' });
@@ -160,7 +167,7 @@ export async function enrichPageWithAI(pageId: number) {
   const result = await model.generateContent(buildInformationGainPrompt(page));
   const response = normalizeGeminiJson(result.response.text());
 
-  const guideWithDisclaimer = response.guide + buildVerifiedDisclaimer(page.name);
+  const guideWithDisclaimer = response.guide + buildVerifiedDisclaimer();
 
   const { error: updateError } = await supabase
     .from('roblox_pages')
@@ -189,14 +196,25 @@ export async function enrichNextBatch(batchSize = 10) {
   if (error) throw error;
   if (!pages?.length) return { processed: 0 };
 
+  let succeeded = 0;
+  const failures: { id: number; error: string }[] = [];
+
   for (const page of pages) {
     try {
       await enrichPageWithAI(page.id);
+      succeeded++;
     } catch (e) {
-      console.error(`Error enriching page ${page.id}:`, e);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(`Error enriching page ${page.id}:`, msg);
+      failures.push({ id: page.id, error: msg });
     }
   }
-  return { processed: pages.length };
+
+  if (failures.length > 0 && succeeded === 0) {
+    throw new Error(`All ${failures.length} enrichments failed. First: ${failures[0]?.error ?? 'unknown'}`);
+  }
+
+  return { processed: succeeded, failed: failures.length, failures };
 }
 
 // --- Google Indexing Logic (Solves your Vercel Build Error) ---
