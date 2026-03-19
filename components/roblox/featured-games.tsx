@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { getFeaturedPages } from '@/lib/data/public';
 import { FEATURED_GAMES, type StaticGame } from '@/lib/data/featured-games';
@@ -49,6 +50,7 @@ function fromStatic(s: StaticGame): GameEntry {
 }
 
 export async function FeaturedGames() {
+  noStore(); // always fetch fresh from DB, never serve cached static shell
   const dbGames = await getFeaturedPages(12);
   // Use DB data when available; fall back to static list on a fresh deploy
   const hasDbData = dbGames.length > 0;
