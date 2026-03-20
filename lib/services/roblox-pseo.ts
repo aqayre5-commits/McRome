@@ -12,6 +12,7 @@ type ExistingPageSnapshot = {
   id: number;
   active_players: number;
   verified_by_community: boolean;
+  is_published: boolean;
 };
 
 const supabase = createServiceSupabaseClient();
@@ -134,7 +135,7 @@ function normalizeGeminiJson(raw: string) {
 async function getExistingPageMap(ids: number[]) {
   const { data, error } = await supabase
     .from('roblox_pages')
-    .select('id,active_players,verified_by_community')
+    .select('id,active_players,verified_by_community,is_published')
     .in('id', ids);
 
   if (error || !data) return new Map<number, ExistingPageSnapshot>();
@@ -210,10 +211,9 @@ export async function syncTopRobloxGames(limit = 100) {
       featured_score: featuredScore,
     };
 
-    // Only mark new rows as unpublished — don't reset already-published pages
-    if (!existing.has(numId)) {
-      row.is_published = false;
-    }
+    // Preserve is_published for existing rows; default false for new ones
+    const existingRow = existing.get(numId);
+    row.is_published = existingRow ? existingRow.is_published : false;
 
     return row;
   });
