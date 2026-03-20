@@ -152,8 +152,13 @@ export async function syncTopRobloxGames(limit = 100) {
 
   if (!response.ok) throw new Error(`Rolimons sync failed: ${response.status}`);
 
+  const MIN_ACTIVE_PLAYERS = 5000;
+
   const json = (await response.json()) as { games: RolimonsGameMap };
-  const games = Object.entries(json.games).slice(0, limit);
+  const games = Object.entries(json.games)
+    .filter(([, details]) => Number(details[1] ?? 0) >= MIN_ACTIVE_PLAYERS)
+    .sort(([, a], [, b]) => Number(b[1] ?? 0) - Number(a[1] ?? 0))
+    .slice(0, limit);
   const ids = games.map(([id]) => Number(id));
   const existing = await getExistingPageMap(ids);
   const now = new Date().toISOString();
@@ -231,6 +236,7 @@ export async function enrichNextBatch(batchSize = 10) {
     .from('roblox_pages')
     .select('id')
     .eq('is_published', false)
+    .gte('active_players', 5000)
     .order('active_players', { ascending: false })
     .limit(batchSize);
 

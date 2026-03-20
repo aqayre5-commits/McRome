@@ -12,6 +12,7 @@ export async function getFeaturedPages(limit = 12): Promise<RobloxPage[]> {
     .from('roblox_pages')
     .select('*')
     .eq('is_published', true)
+    .gte('active_players', 5000)
     .order('verified_by_community', { ascending: false })
     .order('active_players', { ascending: false })
     .limit(limit);
