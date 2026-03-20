@@ -203,7 +203,7 @@ export async function enrichPageWithAI(pageId: number) {
 
   if (error || !page) throw new Error(`Page not found: ${pageId}`);
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const result = await model.generateContent(buildInformationGainPrompt(page));
   const response = normalizeGeminiJson(result.response.text());
 
