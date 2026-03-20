@@ -25,6 +25,8 @@ export type RobloxPage = {
   faq_data: FAQItem[] | null;
   language_code: string;
   device_compatibility: DeviceCompatibility[];
+  rating_percentage: number | null;
+  featured_score: number | null;
   verified_by_community: boolean;
   community_verification_count: number;
   community_verified_at: string | null;

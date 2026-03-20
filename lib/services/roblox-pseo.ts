@@ -143,6 +143,23 @@ async function getExistingPageMap(ids: number[]) {
   );
 }
 
+/** Fetch positiveRatingPercentage from Roblox for up to 100 universe IDs at once */
+async function fetchRobloxRatings(ids: string[]): Promise<Map<number, number>> {
+  const map = new Map<number, number>();
+  try {
+    const url = `https://games.roblox.com/v1/games?universeIds=${ids.join(',')}`;
+    const res = await fetch(url, { next: { revalidate: 0 } });
+    if (!res.ok) return map;
+    const json = (await res.json()) as { data: { id: number; positiveRatingPercentage: number }[] };
+    for (const game of json.data ?? []) {
+      map.set(game.id, game.positiveRatingPercentage ?? 0);
+    }
+  } catch {
+    // Non-fatal — sync continues without rating data
+  }
+  return map;
+}
+
 // --- Main Service Functions ---
 
 export async function syncTopRobloxGames(limit = 100) {
@@ -159,6 +176,9 @@ export async function syncTopRobloxGames(limit = 100) {
     .filter(([, details]) => Number(details[1] ?? 0) >= MIN_ACTIVE_PLAYERS)
     .sort(([, a], [, b]) => Number(b[1] ?? 0) - Number(a[1] ?? 0))
     .slice(0, limit);
+
+  // Batch-fetch Roblox rating percentages (up to 100 IDs per request)
+  const ratingMap = await fetchRobloxRatings(games.map(([id]) => id));
   const ids = games.map(([id]) => Number(id));
   const existing = await getExistingPageMap(ids);
   const now = new Date().toISOString();
@@ -170,6 +190,11 @@ export async function syncTopRobloxGames(limit = 100) {
     const change = curPlayers - prevPlayers;
     const score = getTrendSpikeScore(prevPlayers, curPlayers);
 
+    const ratingPct = ratingMap.get(numId) ?? null;
+    const featuredScore = ratingPct !== null
+      ? Math.round(curPlayers * (ratingPct / 100))
+      : null;
+
     const row: Record<string, unknown> = {
       id: numId,
       name: details[0],
@@ -180,7 +205,9 @@ export async function syncTopRobloxGames(limit = 100) {
       trend_spike_label: getTrendSpikeLabel(score, change),
       icon_url: typeof details[2] === 'string' ? details[2] : null,
       slug: uniqueSlug(details[0], numId),
-      last_data_refresh: now
+      last_data_refresh: now,
+      rating_percentage: ratingPct,
+      featured_score: featuredScore,
     };
 
     // Only mark new rows as unpublished — don't reset already-published pages
