@@ -291,13 +291,32 @@ export async function requestIndexingForVerifiedPages(batchSize = 100) {
     .from('roblox_pages')
     .select('slug')
     .eq('is_published', true)
+    .is('last_indexed_at', null)
     .limit(batchSize);
 
   if (error) throw error;
-  if (!pages?.length) return { processed: 0 };
+  if (!pages?.length) return { processed: 0, skipped: 0 };
+
+  let indexed = 0;
+  let skipped = 0;
 
   for (const page of pages) {
-    await requestIndexing(absoluteUrl(`/games/${page.slug}`));
+    const result = await requestIndexing(absoluteUrl(`/games/${page.slug}`));
+
+    // If GOOGLE_SERVICE_ACCOUNT_JSON is missing, result is { skipped: true }
+    if (result && 'skipped' in result && result.skipped) {
+      skipped++;
+      continue;
+    }
+
+    // Mark as indexed in DB
+    await supabase
+      .from('roblox_pages')
+      .update({ last_indexed_at: new Date().toISOString() })
+      .eq('slug', page.slug);
+
+    indexed++;
   }
-  return { processed: pages.length };
+
+  return { processed: indexed, skipped };
 }
