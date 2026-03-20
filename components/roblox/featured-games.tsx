@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
-import { getFeaturedPages } from '@/lib/data/public';
+import { getFeaturedPages, getSponsoredGames } from '@/lib/data/public';
 import { FEATURED_GAMES, type StaticGame } from '@/lib/data/featured-games';
 import { formatNumber } from '@/lib/utils';
 import { GameIconImage } from '@/components/roblox/game-icon-image';
@@ -19,6 +19,7 @@ type GameEntry = {
   genre: string | null;
   trend_spike_label: string | null;
   verified_by_community: boolean;
+  is_sponsored: boolean;
 };
 
 function fromPage(p: RobloxPage): GameEntry {
@@ -32,6 +33,7 @@ function fromPage(p: RobloxPage): GameEntry {
     genre: p.genre ?? null,
     trend_spike_label: p.trend_spike_label ?? null,
     verified_by_community: p.verified_by_community ?? false,
+    is_sponsored: p.is_sponsored ?? false,
   };
 }
 
@@ -40,23 +42,32 @@ function fromStatic(s: StaticGame): GameEntry {
     id: s.id,
     name: s.name,
     slug: s.slug,
-    icon_url: s.icon_url || null,  // treat empty string as null → shows placeholder immediately
+    icon_url: s.icon_url || null,
     active_players: s.active_players,
     active_players_change_24h: 0,
     genre: s.genre,
     trend_spike_label: null,
     verified_by_community: false,
+    is_sponsored: false,
   };
 }
 
 export async function FeaturedGames() {
-  noStore(); // always fetch fresh from DB, never serve cached static shell
-  const dbGames = await getFeaturedPages(12);
-  // Use DB data when available; fall back to static list on a fresh deploy
+  noStore();
+  const [dbGames, sponsored] = await Promise.all([
+    getFeaturedPages(12),
+    getSponsoredGames(),
+  ]);
+
   const hasDbData = dbGames.length > 0;
-  const games: GameEntry[] = hasDbData
+  const organic: GameEntry[] = hasDbData
     ? dbGames.map(fromPage)
     : FEATURED_GAMES.map(fromStatic);
+
+  // Sponsored games are injected at the front when they exist.
+  // Currently no game has is_sponsored=true so this array is always empty.
+  const sponsoredEntries: GameEntry[] = sponsored.map(fromPage);
+  const games: GameEntry[] = [...sponsoredEntries, ...organic].slice(0, 12);
 
   return (
     <section className="space-y-6">
@@ -107,7 +118,11 @@ export async function FeaturedGames() {
                   </span>
                 ) : null}
 
-                {game.verified_by_community ? (
+                {game.is_sponsored ? (
+                  <span className="absolute right-2 top-2 rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                    Promoted
+                  </span>
+                ) : game.verified_by_community ? (
                   <span className="absolute right-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
                     Verified
                   </span>

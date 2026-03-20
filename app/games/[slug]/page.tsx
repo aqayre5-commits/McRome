@@ -224,6 +224,26 @@ export default async function GameDetailPage({
             <RegionalOfferCard offer={offer} />
             {/* Slot 3: sidebar */}
             <AdSlot slotId="REPLACE_SLOT_ID_SIDEBAR" format="vertical" />
+            {/* Promote CTA — ready for game builder advertisers, hidden until activated */}
+            {false && (
+              <div className="rounded-3xl border border-violet-200 bg-violet-50 p-6">
+                <p className="text-xs font-semibold uppercase tracking-widest text-violet-600">
+                  Advertise
+                </p>
+                <h3 className="mt-2 text-base font-bold text-slate-950">
+                  Promote {page?.name}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Get your game featured on the McRome homepage and reach thousands of active Roblox players daily.
+                </p>
+                <a
+                  href="/contact"
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-violet-700"
+                >
+                  Get featured →
+                </a>
+              </div>
+            )}
           </aside>
         </div>
       </Container>

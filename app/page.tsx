@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { Container } from '@/components/ui/container';
 import { Hero } from '@/components/site/hero';
 import { FeaturedGames } from '@/components/roblox/featured-games';
+import { TrendingGames } from '@/components/roblox/trending-games';
 import { RobuxConverter } from '@/components/roblox/robux-converter';
 import { getRequestCountry } from '@/lib/geo';
 
@@ -18,6 +19,8 @@ export default async function HomePage() {
           <Hero />
 
           <FeaturedGames />
+
+          <TrendingGames />
 
           <section className="grid gap-5 md:grid-cols-3">
             {[

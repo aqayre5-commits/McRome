@@ -27,6 +27,8 @@ export type RobloxPage = {
   device_compatibility: DeviceCompatibility[];
   rating_percentage: number | null;
   featured_score: number | null;
+  is_sponsored: boolean;
+  sponsor_priority: number | null;
   verified_by_community: boolean;
   community_verification_count: number;
   community_verified_at: string | null;

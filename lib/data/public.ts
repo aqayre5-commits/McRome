@@ -24,6 +24,40 @@ export async function getFeaturedPages(limit = 12): Promise<RobloxPage[]> {
   return (data as RobloxPage[]) ?? [];
 }
 
+export async function getTrendingPages(limit = 8): Promise<RobloxPage[]> {
+  const { data, error } = await db
+    .from('roblox_pages')
+    .select('*')
+    .eq('is_published', true)
+    .gte('active_players', 5000)
+    .not('trend_spike_score', 'is', null)
+    .gt('trend_spike_score', 0)
+    .order('trend_spike_score', { ascending: false })
+    .order('active_players_change_24h', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[getTrendingPages] Supabase error:', error.message);
+    return [];
+  }
+  return (data as RobloxPage[]) ?? [];
+}
+
+export async function getSponsoredGames(): Promise<RobloxPage[]> {
+  const { data, error } = await db
+    .from('roblox_pages')
+    .select('*')
+    .eq('is_sponsored', true)
+    .order('sponsor_priority', { ascending: true, nullsFirst: false })
+    .limit(4);
+
+  if (error) {
+    console.error('[getSponsoredGames] Supabase error:', error.message);
+    return [];
+  }
+  return (data as RobloxPage[]) ?? [];
+}
+
 export async function getGameBySlug(slug: string): Promise<RobloxPage | null> {
   const { data, error } = await db
     .from('roblox_pages')
