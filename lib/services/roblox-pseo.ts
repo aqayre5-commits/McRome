@@ -203,7 +203,7 @@ export async function enrichPageWithAI(pageId: number) {
 
   if (error || !page) throw new Error(`Page not found: ${pageId}`);
 
-  const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   const result = await model.generateContent(buildInformationGainPrompt(page));
   const response = normalizeGeminiJson(result.response.text());
 
@@ -248,6 +248,11 @@ export async function enrichNextBatch(batchSize = 10) {
       console.error(`Error enriching page ${page.id}:`, msg);
       failures.push({ id: page.id, error: msg });
     }
+  }
+
+  // Surface failures even when some succeeded so they show up in Vercel logs
+  if (failures.length > 0) {
+    console.error(`[enrichNextBatch] ${failures.length} failures:`, JSON.stringify(failures));
   }
 
   if (failures.length > 0 && succeeded === 0) {
