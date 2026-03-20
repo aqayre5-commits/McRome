@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { JWT } from 'google-auth-library';
 import { clampWords } from '@/lib/content';
 import { geminiResponseSchema } from '@/lib/contracts/api';
@@ -16,9 +16,8 @@ type ExistingPageSnapshot = {
 
 const supabase = createServiceSupabaseClient();
 
-// Initialize Gemini 1.5 Flash
 const genAI = process.env.GEMINI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
   : null;
 
 // --- Helper Functions ---
@@ -203,9 +202,11 @@ export async function enrichPageWithAI(pageId: number) {
 
   if (error || !page) throw new Error(`Page not found: ${pageId}`);
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-  const result = await model.generateContent(buildInformationGainPrompt(page));
-  const response = normalizeGeminiJson(result.response.text());
+  const result = await genAI.models.generateContent({
+    model: 'gemini-2.0-flash',
+    contents: buildInformationGainPrompt(page),
+  });
+  const response = normalizeGeminiJson(result.text ?? '');
 
   const guideWithDisclaimer = response.guide + buildVerifiedDisclaimer();
 

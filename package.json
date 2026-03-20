@@ -11,11 +11,13 @@
     "index-pages": "tsx scripts/drip-feed-indexer.ts"
   },
   "dependencies": {
-    "@google/generative-ai": "latest",
+    "@google/genai": "^1.46.0",
+    "@google/generative-ai": "^0.24.1",
     "@next/third-parties": "^16.1.6",
     "@supabase/ssr": "latest",
-    "@supabase/supabase-js": "latest",
+    "@supabase/supabase-js": "^2.99.2",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/functions": "^3.4.3",
     "@vercel/speed-insights": "^2.0.0",
     "clsx": "latest",
     "google-auth-library": "latest",
