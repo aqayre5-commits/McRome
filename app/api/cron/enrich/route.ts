@@ -2,9 +2,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
 import { enrichNextBatch } from '@/lib/services/roblox-pseo';
 
-// Vercel hobby functions time out at 10 s.
-// Each Gemini call takes ~2-4 s, so keep the batch small.
-const BATCH_SIZE = 3;
+// Enrichments run in parallel so 10 games finish in ~3-4 s (one Gemini RTT),
+// comfortably within Vercel's 10 s hobby function limit.
+const BATCH_SIZE = 10;
 
 function isAuthorized(request: NextRequest) {
   const bearer = request.headers.get('authorization');

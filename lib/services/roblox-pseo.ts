@@ -288,19 +288,21 @@ export async function enrichNextBatch(batchSize = 10) {
   if (error) throw error;
   if (!pages?.length) return { processed: 0 };
 
+  // Run all enrichments in parallel so 10 games finish in ~3-4 s instead of ~30 s
+  const results = await Promise.allSettled(pages.map((page) => enrichPageWithAI(page.id)));
+
   let succeeded = 0;
   const failures: { id: number; error: string }[] = [];
 
-  for (const page of pages) {
-    try {
-      await enrichPageWithAI(page.id);
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
       succeeded++;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      console.error(`Error enriching page ${page.id}:`, msg);
-      failures.push({ id: page.id, error: msg });
+    } else {
+      const msg = result.reason instanceof Error ? result.reason.message : String(result.reason);
+      console.error(`Error enriching page ${pages[i]!.id}:`, msg);
+      failures.push({ id: pages[i]!.id, error: msg });
     }
-  }
+  });
 
   // Surface failures even when some succeeded so they show up in Vercel logs
   if (failures.length > 0) {
