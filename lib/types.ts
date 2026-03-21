@@ -36,6 +36,14 @@ export type RobloxPage = {
   last_indexed_at: string | null;
   is_published: boolean;
   created_at: string;
+  thumbs_up_count: number | null;
+  publish_score: number | null;
+  is_trending_override: boolean;
+  template_type: string;
+  parent_game_id: number | null;
+  last_code_check_at: string | null;
+  private_server_cost_robux: number | null;
+  gamepass_summary_json: Record<string, unknown> | null;
 };
 
 export type ProfilePlan = 'free' | 'pro';

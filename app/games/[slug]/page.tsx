@@ -222,6 +222,30 @@ export default async function GameDetailPage({
               countryCode={countryCode}
             />
             <RegionalOfferCard offer={offer} />
+
+            {/* Sub-page quick links */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+              <h2 className="text-sm font-semibold text-slate-950">More {page.name} guides</h2>
+              <ul className="mt-3 space-y-2">
+                {[
+                  { href: `/games/${page.slug}/codes`,               label: 'Working codes' },
+                  { href: `/games/${page.slug}/robux-costs`,          label: 'Robux costs' },
+                  { href: `/games/${page.slug}/private-server-cost`,  label: 'Private server cost' },
+                  { href: `/games/${page.slug}/is-it-worth-it`,       label: 'Is it worth it?' },
+                ].map(({ href, label }) => (
+                  <li key={href}>
+                    <a
+                      href={href}
+                      className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-brand-600"
+                    >
+                      {label}
+                      <span aria-hidden="true" className="text-slate-300">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             {/* Slot 3: sidebar */}
             <AdSlot slotId="REPLACE_SLOT_ID_SIDEBAR" format="vertical" />
             {/* Promote CTA — ready for game builder advertisers, hidden until activated */}

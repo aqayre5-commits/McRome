@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ls /Users/abdilahiqayre/rometa_pseo/app/games/[slug]/)"
+    ],
+    "additionalDirectories": [
+      "/Users/abdilahiqayre/rometa_pseo/app/genres"
     ]
   }
 }

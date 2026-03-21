@@ -5,6 +5,7 @@ import { clampWords } from '@/lib/content';
 import { geminiResponseSchema } from '@/lib/contracts/api';
 import { createServiceSupabaseClient } from '@/lib/supabase/service';
 import { absoluteUrl } from '@/lib/utils';
+import { computePublishScore } from '@/lib/ranking';
 
 type RolimonsGameMap = Record<string, [string, number, string?, ...unknown[]]>;
 
@@ -144,16 +145,19 @@ async function getExistingPageMap(ids: number[]) {
   );
 }
 
-/** Fetch positiveRatingPercentage from Roblox for up to 100 universe IDs at once */
-async function fetchRobloxRatings(ids: string[]): Promise<Map<number, number>> {
-  const map = new Map<number, number>();
+/** Fetch positiveRatingPercentage and likeCount from Roblox for up to 100 universe IDs at once */
+async function fetchRobloxRatings(ids: string[]): Promise<Map<number, { rating: number; likeCount: number }>> {
+  const map = new Map<number, { rating: number; likeCount: number }>();
   try {
     const url = `https://games.roblox.com/v1/games?universeIds=${ids.join(',')}`;
     const res = await fetch(url, { next: { revalidate: 0 } });
     if (!res.ok) return map;
-    const json = (await res.json()) as { data: { id: number; positiveRatingPercentage: number }[] };
+    const json = (await res.json()) as { data: { id: number; positiveRatingPercentage: number; likeCount: number }[] };
     for (const game of json.data ?? []) {
-      map.set(game.id, game.positiveRatingPercentage ?? 0);
+      map.set(game.id, {
+        rating: game.positiveRatingPercentage ?? 0,
+        likeCount: game.likeCount ?? 0,
+      });
     }
   } catch {
     // Non-fatal — sync continues without rating data
@@ -191,10 +195,21 @@ export async function syncTopRobloxGames(limit = 100) {
     const change = curPlayers - prevPlayers;
     const score = getTrendSpikeScore(prevPlayers, curPlayers);
 
-    const ratingPct = ratingMap.get(numId) ?? null;
+    const ratingEntry = ratingMap.get(numId) ?? null;
+    const ratingPct = ratingEntry?.rating ?? null;
+    const likeCount = ratingEntry?.likeCount ?? null;
     const featuredScore = ratingPct !== null
       ? Math.round(curPlayers * (ratingPct / 100))
       : null;
+
+    const publishScore = computePublishScore({
+      active_players: curPlayers,
+      active_players_change_24h: change,
+      rating_percentage: ratingPct,
+      verified_by_community: existing.get(numId)?.verified_by_community ?? false,
+      last_data_refresh: now,
+    });
+    const trendingOverride = curPlayers < 5000 && change >= 1000;
 
     const row: Record<string, unknown> = {
       id: numId,
@@ -209,6 +224,9 @@ export async function syncTopRobloxGames(limit = 100) {
       last_data_refresh: now,
       rating_percentage: ratingPct,
       featured_score: featuredScore,
+      thumbs_up_count: likeCount,
+      publish_score: publishScore,
+      is_trending_override: trendingOverride,
     };
 
     // Preserve is_published for existing rows; default false for new ones

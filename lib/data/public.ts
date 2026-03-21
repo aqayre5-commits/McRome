@@ -99,12 +99,37 @@ export async function getAllPublishedSlugs(limit = 10000): Promise<Array<{ slug:
   return (data as Array<{ slug: string; last_indexed_at: string | null }> | null) ?? [];
 }
 
+export async function getGamesByGenre(genre: string, limit = 24): Promise<RobloxPage[]> {
+  const { data, error } = await db
+    .from('roblox_pages')
+    .select('*')
+    .eq('is_published', true)
+    .eq('genre', genre)
+    .order('active_players', { ascending: false })
+    .limit(limit);
+
+  if (error) console.error('[getGamesByGenre] Supabase error:', error.message);
+  return (data as RobloxPage[]) ?? [];
+}
+
+export async function getDistinctGenres(): Promise<string[]> {
+  const { data, error } = await db
+    .from('roblox_pages')
+    .select('genre')
+    .eq('is_published', true)
+    .not('genre', 'is', null);
+
+  if (error || !data) return [];
+  const genres = [...new Set((data as { genre: string | null }[]).map((r) => r.genre).filter(Boolean))] as string[];
+  return genres.sort();
+}
+
 export async function getSitemapEligiblePages(): Promise<Array<{ slug: string; last_indexed_at: string | null }>> {
   const { data } = await db
     .from('roblox_pages')
     .select('slug,last_indexed_at')
     .eq('is_published', true)
-    .order('trend_spike_score', { ascending: false })
+    .order('publish_score', { ascending: false, nullsFirst: false })
     .order('active_players', { ascending: false })
     .limit(env.SITEMAP_INDEX_LIMIT);
 
