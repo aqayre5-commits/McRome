@@ -2,9 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
 import { enrichNextBatch } from '@/lib/services/roblox-pseo';
 
-// Enrichments run in parallel so 10 games finish in ~3-4 s (one Gemini RTT),
-// comfortably within Vercel's 10 s hobby function limit.
-const BATCH_SIZE = 10;
+// Enrichments run in parallel — 20 Gemini calls fire at once and finish in
+// ~3-4 s (one network RTT), well within Vercel's 10 s hobby limit.
+// Only games with >= 10,000 active players are enriched (top games first).
+const BATCH_SIZE = 20;
 
 function isAuthorized(request: NextRequest) {
   const bearer = request.headers.get('authorization');

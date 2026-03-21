@@ -276,12 +276,12 @@ export async function enrichPageWithAI(pageId: number) {
   return { ...response, guide: guideWithDisclaimer };
 }
 
-export async function enrichNextBatch(batchSize = 10) {
+export async function enrichNextBatch(batchSize = 20) {
   const { data: pages, error } = await supabase
     .from('roblox_pages')
     .select('id')
     .eq('is_published', false)
-    .gte('active_players', 5000)
+    .gte('active_players', 10000)
     .order('active_players', { ascending: false })
     .limit(batchSize);
 

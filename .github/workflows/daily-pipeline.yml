@@ -1,0 +1,46 @@
+name: Daily pipeline — sync, enrich, index
+
+on:
+  schedule:
+    # Runs daily at 02:30 UTC (after Vercel's sync cron at 02:00 UTC)
+    - cron: '30 2 * * *'
+  # Allow manual trigger from the GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    name: Sync → Enrich → Index
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Sync top Roblox games
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            "https://www.mcrome.com/api/cron/sync" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          body=$(echo "$response" | head -n -1)
+          status=$(echo "$response" | tail -n 1)
+          echo "Sync response ($status): $body"
+          if [ "$status" != "200" ]; then exit 1; fi
+
+      - name: Enrich up to 20 unpublished games (>= 10,000 players)
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            "https://www.mcrome.com/api/cron/enrich" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          body=$(echo "$response" | head -n -1)
+          status=$(echo "$response" | tail -n 1)
+          echo "Enrich response ($status): $body"
+          # 200 = some published, 500 = all failed — still exit 0 on partial success
+          if [ "$status" = "500" ]; then exit 1; fi
+
+      - name: Submit up to 20 new pages to Google Indexing API
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            "https://www.mcrome.com/api/cron/index-verified" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          body=$(echo "$response" | head -n -1)
+          status=$(echo "$response" | tail -n 1)
+          echo "Index response ($status): $body"
+          if [ "$status" != "200" ]; then exit 1; fi

@@ -19,7 +19,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const result = await requestIndexingForVerifiedPages(env.SITEMAP_INDEX_LIMIT);
+    // Hard cap at 20/day to stay well under Google's 200 req/day Indexing API limit.
+    // Sub-pages are discovered organically via the sitemap — only parent slugs submitted.
+    const result = await requestIndexingForVerifiedPages(20);
     return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
