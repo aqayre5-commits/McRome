@@ -70,7 +70,7 @@ export async function getGameBySlug(slug: string): Promise<RobloxPage | null> {
   return (data as RobloxPage | null) ?? null;
 }
 
-export async function getGames(search?: string, limit = 48): Promise<RobloxPage[]> {
+export async function getGames(search?: string, limit = 500): Promise<RobloxPage[]> {
   let query = db
     .from('roblox_pages')
     .select('*')
