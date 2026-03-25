@@ -26,17 +26,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Core game pages + sub-page templates
-  const gameRoutes: MetadataRoute.Sitemap = pages.flatMap((page) => {
+  // Core game pages only — sub-pages are noindexed until content is substantial
+  const gameRoutes: MetadataRoute.Sitemap = pages.map((page) => {
     const lastMod = page.last_indexed_at ? new Date(page.last_indexed_at) : new Date();
     const base = `${baseUrl}/games/${page.slug}`;
-    return [
-      { url: base,                              lastModified: lastMod, changeFrequency: 'daily' as const,  priority: 0.8 },
-      { url: `${base}/codes`,                   lastModified: lastMod, changeFrequency: 'daily' as const,  priority: 0.7 },
-      { url: `${base}/robux-costs`,             lastModified: lastMod, changeFrequency: 'weekly' as const, priority: 0.6 },
-      { url: `${base}/private-server-cost`,     lastModified: lastMod, changeFrequency: 'weekly' as const, priority: 0.6 },
-      { url: `${base}/is-it-worth-it`,          lastModified: lastMod, changeFrequency: 'weekly' as const, priority: 0.6 },
-    ];
+    return { url: base, lastModified: lastMod, changeFrequency: 'daily' as const, priority: 0.8 };
   });
 
   return [...staticRoutes, ...genreRoutes, ...gameRoutes];

@@ -21,6 +21,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    robots: { index: false },
     alternates: {
       canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/games/${slug}/codes`,
     },

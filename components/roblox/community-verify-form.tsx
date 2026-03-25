@@ -16,7 +16,7 @@ export function CommunityVerifyForm({
       <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-700">Community verification</p>
       <h2 className="mt-2 text-xl font-semibold text-slate-950">Was this guide useful?</h2>
       <p className="mt-3 text-sm leading-7 text-slate-700">
-        Verified pages enter the first sitemap batch and are prioritized for indexing. Current confirmations: {verificationCount}.
+        Help other players by confirming this guide was useful. Current confirmations: {verificationCount}.
       </p>
       <div className="mt-4">
         {verifiedByCommunity ? (

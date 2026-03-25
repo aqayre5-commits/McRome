@@ -48,20 +48,19 @@ function buildVerifiedDisclaimer(): string {
     day: 'numeric',
     year: 'numeric'
   });
-  return `\n\nThis guide was cross-referenced by the McRome engine and verified by community success rates on ${date}. Player counts reflect live data at time of generation.`;
+  return `\n\nLast updated ${date}. Player counts reflect live data. Codes are community-verified — success rates update daily.`;
 }
 
 function buildInformationGainPrompt(page: any) {
   const activePlayers = Number(page.active_players ?? 0).toLocaleString();
   return `You are a professional Roblox Game Analyst for McRome. Write a high-impact guide for "${page.name}".
 
-LIVE DATA: ${activePlayers} players are currently active.
-
 CONTENT RULES:
 1. No generic fluff. Start with core gameplay.
 2. Mention at least 2 specific mechanics (e.g. "grinding", "trading", "rebirths").
 3. Compare briefly to 1 other related Roblox game.
 4. Sentences must be short and punchy.
+5. Do NOT include specific player count numbers in your text — player counts change daily and are shown live on the page separately.
 
 OUTPUT RULES (CRITICAL — failure to follow will cause a parse error):
 - Return ONLY a single valid JSON object. No markdown, no code fences, no extra text.

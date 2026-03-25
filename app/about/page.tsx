@@ -21,10 +21,9 @@ export default function AboutPage() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold text-slate-950">Our mission</h2>
               <p>
-                McRome exists to provide <strong>Information Gain</strong> for the Roblox community.
-                We built a programmatic guide engine to give players instant, data-driven answers —
-                active player counts, community-verified codes, and regional Robux price conversion —
-                so you spend less time searching and more time playing.
+                McRome exists to give Roblox players fast, trustworthy answers.
+                Every guide covers active player counts, community-verified codes, and regional Robux
+                pricing — so you spend less time searching and more time playing.
               </p>
             </section>
 
@@ -34,7 +33,7 @@ export default function AboutPage() {
                 {[
                   {
                     title: 'Answer blocks',
-                    body: 'Sub-100-word fast answers placed above the guide body for AI overview readiness and scan speed.',
+                    body: 'Short, direct answers at the top of every guide so you get the key facts without scrolling.',
                   },
                   {
                     title: 'Freshness signals',

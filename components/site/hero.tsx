@@ -7,13 +7,13 @@ export function Hero() {
       <div className="grid gap-8 md:grid-cols-[1.2fr,0.8fr] md:items-center">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
-            Roblox Programmatic SEO
+            Roblox game guides
           </p>
           <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-5xl">
-            Useful Roblox answers built for search and fast player decisions
+            Verified codes, real player counts, and Robux pricing for every Roblox game
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-            Fast answers for every Roblox game. Active player counts, code verification, Robux converter, and community-verified guides — all in one place.
+            Community-verified codes, live active player counts, and regional Robux converter — so you spend less time searching and more time playing.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <ButtonLink href="/games">Browse games</ButtonLink>
