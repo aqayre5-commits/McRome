@@ -202,9 +202,9 @@ export default async function GameDetailPage({
 
           <aside className="space-y-6">
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-              <h2 className="text-lg font-semibold text-slate-950">Actions</h2>
+              <h2 className="text-lg font-semibold text-slate-950">Save this guide</h2>
               <p className="mt-3 text-sm leading-7 text-slate-700">
-                Save this game page to your account dashboard for faster follow-up reads.
+                Bookmark this game to check codes and player counts again quickly.
               </p>
               <div className="mt-4">
                 <SaveGameForm pageId={page.id} redirectTo={`/games/${page.slug}`} />
@@ -216,12 +216,7 @@ export default async function GameDetailPage({
               verificationCount={page.community_verification_count}
               verifiedByCommunity={page.verified_by_community}
             />
-            <BetaTesterSignupForm
-              pageId={page.id}
-              redirectTo={`/games/${page.slug}`}
-              countryCode={countryCode}
-            />
-            <RegionalOfferCard offer={offer} />
+            {/* BetaTesterSignupForm and RegionalOfferCard hidden during AdSense review */}
 
             {/* Sub-page quick links */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">

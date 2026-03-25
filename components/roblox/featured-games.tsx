@@ -159,10 +159,10 @@ export async function FeaturedGames() {
               {hasDbData ? (
                 <Link
                   href={`/games/${game.slug}`}
-                  title={`View working codes for ${game.name}`}
+                  title={`${game.name} guide — codes, tips & player count`}
                   className="mt-auto inline-flex items-center justify-center rounded-xl bg-brand-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-brand-700"
                 >
-                  View Codes →
+                  View guide →
                 </Link>
               ) : (
                 <span className="mt-auto inline-flex items-center justify-center rounded-xl bg-slate-200 px-3 py-2 text-xs font-bold text-slate-400 cursor-default">

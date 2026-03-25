@@ -23,7 +23,7 @@ export function GameCard({ page }: { page: RobloxPage }) {
 
       <div className="space-y-3 p-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-600">Game page</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-600">Roblox guide</p>
           <h2 className="mt-1 line-clamp-2 text-lg font-semibold text-slate-900">
             <Link href={`/games/${page.slug}`}>{page.name}</Link>
           </h2>
@@ -39,14 +39,14 @@ export function GameCard({ page }: { page: RobloxPage }) {
         </div>
 
         <p className="line-clamp-3 text-sm leading-6 text-slate-700">
-          {page.useful_summary ?? 'AI-enriched summary pending.'}
+          {page.useful_summary ?? 'Guide coming soon.'}
         </p>
 
         <Link
           href={`/games/${page.slug}`}
           className="inline-flex text-sm font-semibold text-brand-700 hover:text-brand-800"
         >
-          Read useful answer
+          View guide →
         </Link>
       </div>
     </article>

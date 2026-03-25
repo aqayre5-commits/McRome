@@ -137,13 +137,25 @@ export default function BestRobloxGames2026Page() {
             ))}
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft text-sm leading-7 text-slate-700">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft text-sm leading-7 text-slate-700 space-y-3">
             <h2 className="font-bold text-slate-950 text-base">How we picked these games</h2>
-            <p className="mt-2">
-              We looked at games with consistent active player counts above 100,000, positive
-              community ratings above 70%, and a gameplay experience that works well for players
-              who are new to the game. All five are free to play with no required purchases to
-              enjoy the core experience.
+            <p>
+              We looked at games with consistent active player counts above 100,000, verified via
+              the Roblox API. Community ratings are sourced from Roblox&apos;s thumbs-up percentage
+              and tracked on each game&apos;s McRome page. We only included games with ratings above
+              70% positive.
+            </p>
+            <p>
+              Beginner-friendliness is based on how much of the core gameplay is accessible without
+              spending Robux and how quickly a new player can understand the game&apos;s main loop.
+              All five games on this list are free to start with no required purchases.
+            </p>
+            <p>
+              Player counts change daily — check each game&apos;s guide page for the current figure.
+              If you think a game should be on this list or disagree with a placement, email us at{' '}
+              <a href="mailto:contact@mcrome.com" className="text-brand-600 hover:underline">
+                contact@mcrome.com
+              </a>.
             </p>
           </div>
 
