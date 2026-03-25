@@ -201,15 +201,7 @@ export default async function GameDetailPage({
           </div>
 
           <aside className="space-y-6">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-              <h2 className="text-lg font-semibold text-slate-950">Save this guide</h2>
-              <p className="mt-3 text-sm leading-7 text-slate-700">
-                Bookmark this game to check codes and player counts again quickly.
-              </p>
-              <div className="mt-4">
-                <SaveGameForm pageId={page.id} redirectTo={`/games/${page.slug}`} />
-              </div>
-            </div>
+            {/* SaveGameForm hidden — requires auth, redirects unauthenticated users */}
             <CommunityVerifyForm
               pageId={page.id}
               redirectTo={`/games/${page.slug}`}

@@ -34,6 +34,7 @@ export function AdSlot({ slotId, format = 'auto', className }: Props) {
   }, [publisherId]);
 
   if (!publisherId) return null;
+  if (slotId.startsWith('REPLACE_') || slotId.includes('YOUR_')) return null;
 
   return (
     <div

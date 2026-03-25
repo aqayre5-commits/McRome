@@ -30,26 +30,25 @@ const LINKS_BY_REGION: Record<RegionCode, AffiliateLink> = {
     isAmazon: true,
   },
   GB: {
-    // TODO: replace YOUR_UK_TAG with your Amazon UK Associates tracking ID
-    href: 'https://www.amazon.co.uk/dp/B07T82K1LB?tag=YOUR_UK_TAG',
-    storeName: 'Amazon UK',
-    buttonLabel: 'Buy Robux on Amazon UK',
-    isAmazon: true,
+    // TODO: replace with your Amazon UK Associates link once approved
+    href: 'https://www.roblox.com/giftcards',
+    storeName: 'Roblox',
+    buttonLabel: 'Get Robux Gift Cards',
+    isAmazon: false,
   },
   EU: {
-    // Amazon DE covers the Eurozone bundle; replace YOUR_EU_TAG
-    // TODO: replace YOUR_EU_TAG with your Amazon DE Associates tracking ID
-    href: 'https://www.amazon.de/dp/B07R6Y8X9W?tag=YOUR_EU_TAG',
-    storeName: 'Amazon DE',
-    buttonLabel: 'Buy Robux on Amazon DE',
-    isAmazon: true,
+    // TODO: replace with your Amazon DE Associates link once approved
+    href: 'https://www.roblox.com/giftcards',
+    storeName: 'Roblox',
+    buttonLabel: 'Get Robux Gift Cards',
+    isAmazon: false,
   },
   BR: {
-    // TODO: replace YOUR_BR_TAG with your Amazon Brasil Associates tracking ID
-    href: 'https://www.amazon.com.br/dp/B08GL2H6F6?tag=YOUR_BR_TAG',
-    storeName: 'Amazon BR',
-    buttonLabel: 'Buy Robux on Amazon BR',
-    isAmazon: true,
+    // TODO: replace with your Amazon BR Associates link once approved
+    href: 'https://www.roblox.com/giftcards',
+    storeName: 'Roblox',
+    buttonLabel: 'Get Robux Gift Cards',
+    isAmazon: false,
   },
 };
 
