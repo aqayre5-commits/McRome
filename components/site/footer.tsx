@@ -20,6 +20,8 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-slate-400">
               <li><Link href="/games" className="hover:text-white transition-colors">All Games</Link></li>
               <li><Link href="/blog/roblox-essentials" className="hover:text-white transition-colors">2026 Starter Guide</Link></li>
+              <li><Link href="/blog/how-to-spot-fake-roblox-codes" className="hover:text-white transition-colors">Spot Fake Code Sites</Link></li>
+              <li><Link href="/blog/best-roblox-games-2026" className="hover:text-white transition-colors">Best Games 2026</Link></li>
             </ul>
           </div>
           <div>

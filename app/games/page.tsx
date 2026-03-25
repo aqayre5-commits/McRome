@@ -5,8 +5,8 @@ import { GameGrid } from '@/components/roblox/game-grid';
 import { getGames } from '@/lib/data/public';
 
 export const metadata: Metadata = {
-  title: 'Game directory',
-  description: 'Browse published Roblox game guides with fast answer blocks, key takeaways, and FAQs.',
+  title: 'Roblox Game Guides — Codes, Player Counts & Robux Prices',
+  description: 'Browse Roblox game guides with community-verified codes, live active player counts, and real-money Robux pricing. Updated daily.',
   alternates: { canonical: '/games' }
 };
 
@@ -24,12 +24,13 @@ export default async function GamesPage({
       <Container>
         <div className="space-y-6">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-600">Game directory</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-600">All game guides</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-              Search published Roblox guides
+              Roblox game guides
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-700">
-              Public pages include key takeaways, guide content, and FAQs. Search by game name or slug.
+              Community-verified codes, live player counts, and Robux pricing for the most-played
+              Roblox games. Search by game name below.
             </p>
           </div>
 

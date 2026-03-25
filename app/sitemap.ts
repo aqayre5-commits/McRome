@@ -16,7 +16,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/contact`,                 lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     { url: `${baseUrl}/privacy`,                 lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     { url: `${baseUrl}/disclaimer`,              lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-    { url: `${baseUrl}/blog/roblox-essentials`,  lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.6 },
+    { url: `${baseUrl}/blog/roblox-essentials`,              lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/blog/how-to-spot-fake-roblox-codes`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/blog/best-roblox-games-2026`,        lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
   ];
 
   const genreRoutes: MetadataRoute.Sitemap = genres.map((genre) => ({

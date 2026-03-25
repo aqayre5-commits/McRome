@@ -22,17 +22,37 @@ export default async function HomePage() {
 
           <TrendingGames />
 
-          <section className="grid gap-5 md:grid-cols-3">
-            {[
-              ['Instant Game Insights', 'Skip the fluff. Get 2026\'s most accurate Roblox guides with verified active player counts and key takeaways delivered in under 10 seconds.'],
-              ['Real-Time Code Tracking', 'Our community-driven engine tracks code expirations daily. Never waste time on an expired reward again with our success-rate badges.'],
-              ['Global Value Tools', 'Use our smart converter to see real-time Robux-to-USD rates. Automatically localized for US, UK, EU, and Brazil to help you spend smarter.']
-            ].map(([title, body]) => (
-              <article key={title} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-                <h3 className="text-xl font-semibold text-slate-950">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-700">{body}</p>
-              </article>
-            ))}
+          <section className="space-y-6">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-600">How it works</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Built for players, not search engines</h2>
+              <p className="mt-2 text-sm text-slate-500">Every piece of data on McRome has a source. Here is exactly where it comes from.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {[
+                {
+                  step: '1',
+                  title: 'Live player data from Roblox',
+                  body: 'Active player counts are pulled from the Roblox API every day. The 24-hour change tells you if a game is growing or cooling down — useful before you invest time in it.',
+                },
+                {
+                  step: '2',
+                  title: 'Codes voted on by real players',
+                  body: 'Every code shows a working rate based on real player votes. Codes above 90% are confirmed working. Below 50% means expired. You can vote on any code you try.',
+                },
+                {
+                  step: '3',
+                  title: 'Robux prices in your currency',
+                  body: 'Our converter uses verified 2026 web purchase rates. It automatically detects your region and shows prices in USD, GBP, EUR, or BRL so you know exactly what you are spending.',
+                },
+              ].map(({ step, title, body }) => (
+                <article key={step} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">{step}</span>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-950">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-700">{body}</p>
+                </article>
+              ))}
+            </div>
           </section>
 
           <RobuxConverter
